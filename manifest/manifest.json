@@ -1,0 +1,62 @@
+﻿{
+  "$schema": "https://statics.teams.microsoft.com/sdk/v1.0/manifest/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.0",
+  "version": "1.0",
+  "id": "8d03718b-3c57-425d-ae69-c92f29b0327e",
+  "packageName": "com.microsoft.bing.teams",
+  "developer": {
+    "name": "Microsoft",
+    "websiteUrl": "https://microsoft.com/translator",
+    "privacyUrl": "https://privacy.microsoft.com/PrivacyStatement",
+    "termsOfUseUrl": "https://www.microsoft.com/en-us/servicesagreement/"
+  },
+  "name": {
+    "short": "Bing"
+  },
+  "description": {
+    "short": "A social networking site designed specifically for the business community.",
+    "full": "A social networking site designed specifically for the business community."
+  },
+  "icons": {
+    "outline": "translator_outline20.png",
+    "color": "translator_color96.png"
+  },
+  "accentColor": "#467b22",
+  "configurableTabs": [
+  ],
+  "staticTabs": [
+  ],
+  "bots": [
+  ],
+  "composeExtensions": [
+    {
+      "botId": "33d828ea-f735-4ad6-8766-7e6dee2fcc7d",
+      "scopes": [
+        "personal",
+        "team"
+      ],
+      "canUpdateConfiguration": true,
+      "commands": [
+        {
+          "id": "translate",
+          "title": "Translate",
+          "description": "Translate text",
+          "initialRun": true,
+          "parameters": [
+            {
+              "name": "text",
+              "title": "Text",
+              "description": "Text to translate"
+            }
+          ]
+        }
+      ]
+    } 
+  ],
+  "permissions": [
+  ],
+  "validDomains": [
+    "bing-msteams.azurewebsites.net",
+    "*.ngrok.io"
+  ]
+}

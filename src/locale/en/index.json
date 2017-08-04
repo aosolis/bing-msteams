@@ -1,0 +1,7 @@
+{
+    "error_generic": "Sorry, I'm having issues.",
+    "error_translation": "Oops, there was a problem translating the text you entered.",
+    "error_notext": "Enter text to translate",
+    "configure_page": "compose-config.html",
+    "configure_text": "Configure Translator"
+}

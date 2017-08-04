@@ -1,0 +1,16 @@
+{
+    "app": {
+        "baseUri": "APP_BASE_URI",
+        "instrumentationKey": "APPINSIGHTS_INSTRUMENTATIONKEY"
+    },
+    "bot": {
+        "appId": "MICROSOFT_APP_ID",
+        "appPassword": "MICROSOFT_APP_PASSWORD"
+    },
+    "translator": {
+        "accessKey": "TRANSLATOR_ACCESS_KEY"
+    },
+    "mongoDb": {
+        "connectionString": "MONGODB_CONNECTION_STRING"
+    }
+}

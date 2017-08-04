@@ -1,0 +1,21 @@
+{
+    "app": {
+        "baseUri": "https://translator-msteams.azurewebsites.net",
+        "instrumentationKey": ""
+    },
+    "bot": {
+        "appId": "8d03718b-3c57-425d-ae69-c92f29b0327e",
+        "appPassword": "<secret>"
+    },
+    "translator": {
+        "accessKey": "<secret>"
+    },
+    "storage": "botFramework",
+    "mongoDb": {
+        "connectionString": "",
+        "botStateCollection": "BotState-Test"
+    },
+    "features": {
+        "allowConfigurationViaQuery": true
+    }
+}

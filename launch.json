@@ -1,0 +1,30 @@
+{
+    // Use IntelliSense to learn about possible Node.js debug attributes.
+    // Hover to view descriptions of existing attributes.
+    // For more information, visit: https://go.microsoft.com/fwlink/?linkid=830387
+    "version": "0.2.0",
+    "configurations": [
+        {
+            "type": "node",
+            "request": "launch",
+            "name": "Launch Program",
+            "program": "${workspaceRoot}\\build\\src\\app.js",
+            "cwd": "${workspaceRoot}\\build\\src",
+            "sourceMaps": true,
+            "outFiles": [ "${workspaceRoot}/build/src/**/*.js" ],
+            "env": {
+                "APP_BASE_URI": "<your site base uri, e.g., https://myapp.ngrok.io>",
+                "MICROSOFT_APP_ID": "<your bot id>",
+                "MICROSOFT_APP_PASSWORD": "<your bot password>",
+                "TRANSLATOR_ACCESS_KEY": "<your translator access key>"
+            }
+        },
+        {
+            "type": "node",
+            "request": "attach",
+            "name": "Attach to Process",
+            "port": 5858,
+            "outFiles": []
+        }
+    ]
+}

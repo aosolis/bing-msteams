@@ -1,0 +1,173 @@
+<html>
+<head>
+    <title>Configurar Translator</title>
+    <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css" integrity="sha384-BVYiiSIFeK1dGmJRAkycuHAHRg32OmUcww7on3RYdg4Va+PmSTsz/K68vbdEjh4u" crossorigin="anonymous">
+    <link rel="stylesheet" href="../styles/teams.css">
+
+    <style>
+        @charset "UTF-8";
+
+        body {
+            padding: .8rem 3.2rem;
+        }
+
+        .language-lists-container {
+            display: flex;
+            width: 100%;
+            align-items: stretch;
+            margin-top: 1.2rem;
+        }
+
+        .language-list-container {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .language-list {
+            flex: 1;
+        }
+
+        .language-list li {
+            cursor: pointer;
+            padding-bottom: .6rem;
+        }
+    </style>
+</head>
+<body>
+    <h4 class="ts-modal-dialog-title">Configurar Translator</h4>
+
+    <p>Elija los idiomas a traducir y su orden, arrastrándolos a la lista "Idiomas seleccionados".</p>
+
+    <button onclick="submit()" class="ts-btn ts-btn-primary">Aceptar</button>
+    
+    <div class="language-lists-container">
+        <div class="language-list-container">
+            <div class="section-caption">Idiomas seleccionados</div>
+            <ul id="selected" class="language-list">
+        </div>
+
+        <div class="language-list-container">
+            <div class="section-caption">Idiomas disponibiles</div>
+            <ul id="available" class="language-list">
+                <li data-id="af">africaans</li>
+                <li data-id="ar">árabe</li>
+                <li data-id="bn">bengalí</li>
+                <li data-id="bs-Latn">bosnio</li>
+                <li data-id="bg">búlgaro</li>
+                <li data-id="ca">catalán</li>
+                <li data-id="zh-CHS">chino simplificado</li>
+                <li data-id="zh-CHT">chino tradicional</li>
+                <li data-id="hr">croata</li>
+                <li data-id="cs">checo</li>
+                <li data-id="da">danés</li>
+                <li data-id="nl">holandés</li>
+                <li data-id="en">inglés</li>
+                <li data-id="et">estonio</li>
+                <li data-id="fj">fiyiano</li>
+                <li data-id="fil">filipino</li>
+                <li data-id="fi">finlandés</li>
+                <li data-id="fr">francés</li>
+                <li data-id="de">alemán</li>
+                <li data-id="el">griego</li>
+                <li data-id="ht">haitiano</li>
+                <li data-id="he">hebreo</li>
+                <li data-id="hi">hindi</li>
+                <li data-id="hu">húngaro</li>
+                <li data-id="id">indonesio</li>
+                <li data-id="it">italiano</li>
+                <li data-id="ja">japonés</li>
+                <li data-id="tlh">klingon</li>
+                <li data-id="ko">coreano</li>
+                <li data-id="lv">letón</li>
+                <li data-id="lt">lituano</li>
+                <li data-id="mg">madagascarí</li>
+                <li data-id="ms">malayo</li>
+                <li data-id="mt">maltés</li>
+                <li data-id="no">noruego</li>
+                <li data-id="fa">persa</li>
+                <li data-id="pl">polaco</li>
+                <li data-id="pt">portugués</li>
+                <li data-id="ro">rumano</li>
+                <li data-id="ru">ruso</li>
+                <li data-id="sm">samoano</li>
+                <li data-id="sr-Cyrl">serbio (cirílico)</li>
+                <li data-id="sr-Latn">serbio (latín)</li>
+                <li data-id="sk">eslovaco</li>
+                <li data-id="sl">esloveno</li>
+                <li data-id="es">español</li>
+                <li data-id="sv">sueco</li>
+                <li data-id="ty">taitiano</li>
+                <li data-id="th">tailandés</li>
+                <li data-id="to">tonga</li>
+                <li data-id="tr">turco</li>
+                <li data-id="uk">ucraniano</li>
+                <li data-id="ur">urdu</li>
+                <li data-id="vi">vietnamita</li>
+                <li data-id="cy">galés</li>
+            </ul>
+        </div>
+    </div>
+    </ul>
+
+    <script src="https://ajax.aspnetcdn.com/ajax/jQuery/jquery-3.1.1.min.js"></script>
+    <script src="https://statics.teams.microsoft.com/sdk/v1.0/js/MicrosoftTeams.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Sortable/1.6.0/Sortable.min.js"></script>
+    <script type="text/javascript">
+          microsoftTeams.initialize();
+
+          // Parse query parameters
+          let queryParams = {};
+          location.search.substr(1).split("&").forEach(function(item) {
+              let s = item.split("="),
+              k = s[0],
+              v = s[1] && decodeURIComponent(s[1]);
+              queryParams[k] = v;
+          });
+
+          let availableSortable = Sortable.create(available, {
+            group: {
+                name: 'languages',
+            },
+            sort: false,
+            animation: 100,
+            onAdd: (evt) => {
+                availableSortable.sort(initialSort);
+            }
+          });
+          let initialSort = availableSortable.toArray();
+
+          Sortable.create(selected, {
+            group: {
+                name: 'languages',
+            },
+            animation: 100
+          });
+
+          // Initialize state of checkboxes
+          $().ready(() => {
+            let selected = $("#selected");
+
+            let languages = queryParams["languages"] || "";
+            languages.split(",").forEach((lang) => {
+                selected.append($("#available > li[data-id='" + lang + "']"));
+            });
+          });
+
+          function submit() {
+            let selectedLanguages = $("#selected li").get();
+            let newSetting = selectedLanguages.map(c => c.attributes["data-id"].value).join(",");
+            microsoftTeams.authentication.notifySuccess(newSetting);
+          }
+
+          function sortAvailableLanguages() {
+            let list = $("#available");
+            list.find("li").detach().sort(function(a, b) {
+                return a.innerHTML.localeCompare(b.innerHTML);
+            }).each(function(index, el) {
+                list.append(el);
+            });
+        }
+    </script>
+</body>
+</html>
