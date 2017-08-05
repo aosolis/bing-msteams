@@ -5,7 +5,7 @@ import * as winston from "winston";
 import * as moment from "moment";
 import * as escapeHtml from "escape-html";
 import * as utils from "./utils";
-import { BingSearchApi, NewsSearchOptions } from "./BingSearchApi";
+import { BingSearchApi, NewsSearchOptions, NewsArticle } from "./BingSearchApi";
 import { Strings } from "./locale/locale";
 
 // =========================================================
@@ -100,39 +100,19 @@ export class BingSearchBot extends builder.UniversalBot {
             }
 
             let response = msteams.ComposeExtensionResponse.result("list")
-                .attachments(searchResult.articles.map(article => {
-                    // Build the attributions line
-                    let attributions = [];
-                    if (article.provider && article.provider.length) {
-                        attributions.push(article.provider.map(provider => provider.name).join(", "));
-                    }
-                    if (article.datePublished) {
-                        attributions.push(moment.utc(article.datePublished).fromNow());
-                    }
-
-                    let card = new builder.ThumbnailCard(session)
-                        .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
-                        .text(`<p>${escapeHtml(article.description)}</p><p>${attributions.join(" | ")}</p>`);
-                    let previewCard = new builder.ThumbnailCard(session)
-                        .title(article.name)
-                        .text(article.description);
-
-                    // Add images if available
-                    if (article.image) {
-                        card.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
-                        previewCard.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
-                    }
-
-                    return {
-                        ...card.toAttachment(),
-                        preview: previewCard.toAttachment(),
-                    };
-                }));
+                .attachments(searchResult.articles.map(article => this.createNewsResult(session, article)));
             cb(null, response.toResponse());
         } else if (initialRun) {
-            cb(null, this.createMessageResponse(session, Strings.error_notext));
+            let searchResult = await this.bingSearch.getNewsAsync(session.userData.clientId);
+            if (searchResult.clientId && (searchResult.clientId !== session.userData.clientId)) {
+                session.userData.clientId = searchResult.clientId;
+            }
+
+            let response = msteams.ComposeExtensionResponse.result("list")
+                .attachments(searchResult.articles.map(article => this.createNewsResult(session, article)));
+            cb(null, response.toResponse());
         } else {
-            cb(null, this.createMessageResponse(session, Strings.error_notext));
+            cb(null, this.createMessageResponse(session, Strings.error_news_notext));
         }
     }
 
@@ -176,6 +156,35 @@ export class BingSearchBot extends builder.UniversalBot {
             builder.CardAction.openUrl(session, `${baseUri}/html/${configPage}`, Strings.configure_text),
         ]);
         return response.toResponse();
+    }
+
+    private createNewsResult(session: builder.Session, article: NewsArticle): msteams.ComposeExtensionAttachment {
+        // Build the attributions line
+        let attributions = [];
+        if (article.provider && article.provider.length) {
+            attributions.push(article.provider.map(provider => provider.name).join(", "));
+        }
+        if (article.datePublished) {
+            attributions.push(moment.utc(article.datePublished).fromNow());
+        }
+
+        let card = new builder.ThumbnailCard(session)
+            .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
+            .text(`<p>${escapeHtml(article.description)}</p><p>${attributions.join(" | ")}</p>`);
+        let previewCard = new builder.ThumbnailCard(session)
+            .title(article.name)
+            .text(article.description);
+
+        // Add images if available
+        if (article.image) {
+            card.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
+            previewCard.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
+        }
+
+        return {
+            ...card.toAttachment(),
+            preview: previewCard.toAttachment(),
+        };
     }
 
     // Create compose extension response that shows a message

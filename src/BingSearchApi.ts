@@ -6,6 +6,7 @@ import * as querystring from "querystring";
 // Bing Search API
 // =========================================================
 
+const topNewsEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news";
 const newsSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news/search";
 
 export interface Image {
@@ -33,7 +34,7 @@ export interface NewsArticle {
 }
 
 export interface NewsSearchResult {
-    totalEstimatedMatches: number;
+    totalEstimatedMatches?: number;
     articles: NewsArticle[];
     clientId: string;
 }
@@ -70,6 +71,8 @@ export class BingSearchApi {
             request.get(options, (err, res: http.IncomingMessage, body) => {
                 if (err) {
                     reject(err);
+                } else if (res.statusCode !== 200) {
+                    reject(new Error(res.statusMessage));
                 } else {
                     resolve({
                         totalEstimatedMatches: body.totalEstimatedMatches,
@@ -81,4 +84,28 @@ export class BingSearchApi {
         });
     }
 
+    public async getNewsAsync(clientId: string): Promise<NewsSearchResult> {
+        return new Promise<NewsSearchResult>((resolve, reject) => {
+            let options = {
+                url: `${topNewsEndpoint}`,
+                headers: {
+                    "Ocp-Apim-Subscription-Key": this.accessKey,
+                    "X-MSEdge-ClientID": clientId,
+                },
+                json: true,
+            };
+            request.get(options, (err, res: http.IncomingMessage, body) => {
+                if (err) {
+                    reject(err);
+                } else if (res.statusCode !== 200) {
+                    reject(new Error(res.statusMessage));
+                } else {
+                    resolve({
+                        clientId: res.headers["X-MSEdge-ClientID"],
+                        articles: body.value,
+                    });
+                }
+            });
+        });
+    }
 }
