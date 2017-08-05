@@ -5,7 +5,7 @@ import * as winston from "winston";
 import * as moment from "moment";
 import * as escapeHtml from "escape-html";
 import * as utils from "./utils";
-import { BingSearchApi } from "./BingSearchApi";
+import { BingSearchApi, NewsSearchOptions } from "./BingSearchApi";
 import { Strings } from "./locale/locale";
 
 // =========================================================
@@ -90,7 +90,11 @@ export class BingSearchBot extends builder.UniversalBot {
         }
 
         if (text) {
-            let searchResult = await this.bingSearch.searchNewsAsync(text, session.userData.clientId);
+            let options = {} as NewsSearchOptions;
+            options.count = query.queryOptions.count;
+            options.offset = query.queryOptions.skip;
+
+            let searchResult = await this.bingSearch.searchNewsAsync(text, session.userData.clientId, options);
             if (searchResult.clientId && (searchResult.clientId !== session.userData.clientId)) {
                 session.userData.clientId = searchResult.clientId;
             }
