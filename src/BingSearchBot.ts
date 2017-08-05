@@ -2,6 +2,8 @@ import * as config from "config";
 import * as builder from "botbuilder";
 import * as msteams from "botbuilder-teams";
 import * as winston from "winston";
+import * as moment from "moment";
+import * as escapeHtml from "escape-html";
 import * as utils from "./utils";
 import { BingSearchApi } from "./BingSearchApi";
 import { Strings } from "./locale/locale";
@@ -88,7 +90,41 @@ export class BingSearchBot extends builder.UniversalBot {
         }
 
         if (text) {
-            cb(null, this.createMessageResponse(session, Strings.error_notext));
+            let searchResult = await this.bingSearch.searchNewsAsync(text, session.userData.clientId);
+            if (searchResult.clientId && (searchResult.clientId !== session.userData.clientId)) {
+                session.userData.clientId = searchResult.clientId;
+            }
+
+            let response = msteams.ComposeExtensionResponse.result("list")
+                .attachments(searchResult.articles.map(article => {
+                    // Build the attributions line
+                    let attributions = [];
+                    if (article.provider && article.provider.length) {
+                        attributions.push(article.provider.map(provider => provider.name).join(", "));
+                    }
+                    if (article.datePublished) {
+                        attributions.push(moment.utc(article.datePublished).fromNow());
+                    }
+
+                    let card = new builder.ThumbnailCard(session)
+                        .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
+                        .text(`<p>${escapeHtml(article.description)}</p><p>${attributions.join(" | ")}</p>`);
+                    let previewCard = new builder.ThumbnailCard(session)
+                        .title(article.name)
+                        .text(article.description);
+
+                    // Add images if available
+                    if (article.image) {
+                        card.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
+                        previewCard.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
+                    }
+
+                    return {
+                        ...card.toAttachment(),
+                        preview: previewCard.toAttachment(),
+                    };
+                }));
+            cb(null, response.toResponse());
         } else if (initialRun) {
             cb(null, this.createMessageResponse(session, Strings.error_notext));
         } else {

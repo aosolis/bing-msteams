@@ -2,11 +2,11 @@
   "$schema": "https://statics.teams.microsoft.com/sdk/v1.0/manifest/MicrosoftTeams.schema.json",
   "manifestVersion": "1.0",
   "version": "1.0",
-  "id": "8d03718b-3c57-425d-ae69-c92f29b0327e",
+  "id": "33d828ea-f735-4ad6-8766-7e6dee2fcc7d",
   "packageName": "com.microsoft.bing.teams",
   "developer": {
     "name": "Microsoft",
-    "websiteUrl": "https://microsoft.com/translator",
+    "websiteUrl": "https://bing.com",
     "privacyUrl": "https://privacy.microsoft.com/PrivacyStatement",
     "termsOfUseUrl": "https://www.microsoft.com/en-us/servicesagreement/"
   },
