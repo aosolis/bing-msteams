@@ -14,8 +14,8 @@
     "short": "Bing"
   },
   "description": {
-    "short": "A social networking site designed specifically for the business community.",
-    "full": "A social networking site designed specifically for the business community."
+    "short": "Search with Bing.",
+    "full": "Bing helps you turn information into action, making it faster and easier to go from searching to doing."
   },
   "icons": {
     "outline": "translator_outline20.png",
@@ -38,15 +38,15 @@
       "canUpdateConfiguration": true,
       "commands": [
         {
-          "id": "translate",
-          "title": "Translate",
-          "description": "Translate text",
+          "id": "searchNews",
+          "title": "Search news",
+          "description": "Search news",
           "initialRun": true,
           "parameters": [
             {
               "name": "text",
-              "title": "Text",
-              "description": "Text to translate"
+              "title": "Query",
+              "description": "Search Bing for news"
             }
           ]
         }

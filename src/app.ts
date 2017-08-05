@@ -9,8 +9,8 @@ let logger = require("morgan");
 let config = require("config");
 import * as msteams from "botbuilder-teams";
 import * as winston from "winston";
-import { TranslatorApi } from "./TranslatorApi";
-import { TranslatorBot } from "./TranslatorBot";
+import { BingSearchApi } from "./BingSearchApi";
+import { BingSearchBot } from "./BingSearchBot";
 import { MongoDbBotStorage } from "./storage/MongoDbBotStorage";
 import * as utils from "./utils";
 
@@ -45,9 +45,9 @@ let connector = new msteams.TeamsChatConnector({
 });
 let botSettings = {
     storage: botStorage,
-    translator: new TranslatorApi(config.get("translator.accessKey")),
+    bingSearch: new BingSearchApi(config.get("bing.accessKey")),
 };
-let bot = new TranslatorBot(connector, botSettings);
+let bot = new BingSearchBot(connector, botSettings);
 
 // Log bot errors
 bot.on("error", (error: Error) => {
