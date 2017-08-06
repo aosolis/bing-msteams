@@ -2,6 +2,7 @@
     "error_generic": "Sorry, I'm having issues.",
     "error_translation": "Oops, there was a problem translating the text you entered.",
     "error_news_notext": "Search Bing for news articles",
+    "error_videos_notext": "Search Bing for videos",
     "configure_page": "compose-config.html",
-    "configure_text": "Configure Translator"
+    "configure_text": "Configure Bing"
 }

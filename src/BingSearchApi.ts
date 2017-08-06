@@ -6,6 +6,8 @@ import * as querystring from "querystring";
 // Bing Search API
 // =========================================================
 
+export type SafeSearch = "off" | "moderate" | "strict";
+
 export namespace news {
     export interface Image {
         url: string;
@@ -41,12 +43,52 @@ export namespace news {
         count?: number;
         offset?: number;
         mkt?: string;
+        safeSearch?: SafeSearch;
+    }
+}
+
+export namespace videos {
+    export interface Video {
+        videoId: string;
+        name: string;
+        description: string;
+        publisher: Publisher[];
+        thumbnailUrl: string;
+        hostPageUrl: string;
+        contentUrl: string;
+        webSearchUrl: string;
+        duration: string;
+        datePublished: string;
+        creator: Publisher;
+    }
+
+    export interface Publisher {
+        name: string;
+    }
+
+    export interface VideoSearchResult {
+        totalEstimatedMatches?: number;
+        nextOffsetAddCount?: number;
+        videos: Video[];
+        clientId: string;
+    }
+
+    type VideoFreshness = "day" | "week" | "month";
+
+    export interface VideoSearchOptions {
+        count?: number;
+        offset?: number;
+        mkt?: string;
+        safeSearch?: SafeSearch;
+        freshness?: VideoFreshness;
+        id?: string;
     }
 }
 
 // Service endpoints
 const topNewsEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news";
 const newsSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news/search";
+const videosSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/videos/search";
 
 export class BingSearchApi {
 
@@ -106,6 +148,38 @@ export class BingSearchApi {
                     resolve({
                         clientId: res.headers["X-MSEdge-ClientID"],
                         articles: body.value,
+                    });
+                }
+            });
+        });
+    }
+
+    public async searchVideosAsync(query: string, clientId: string, searchOptions?: videos.VideoSearchOptions): Promise<videos.VideoSearchResult> {
+        return new Promise<videos.VideoSearchResult>((resolve, reject) => {
+            let qsp: any = { q: query };
+            if (searchOptions) {
+                qsp = { ...searchOptions, ...qsp };
+            }
+
+            let options = {
+                url: `${videosSearchEndpoint}?${querystring.stringify(qsp)}`,
+                headers: {
+                    "Ocp-Apim-Subscription-Key": this.accessKey,
+                    "X-MSEdge-ClientID": clientId,
+                },
+                json: true,
+            };
+            request.get(options, (err, res: http.IncomingMessage, body) => {
+                if (err) {
+                    reject(err);
+                } else if (res.statusCode !== 200) {
+                    reject(new Error(res.statusMessage));
+                } else {
+                    resolve({
+                        totalEstimatedMatches: body.totalEstimatedMatches,
+                        nextOffsetAddCount: body.nextOffsetAddCount,
+                        clientId: res.headers["X-MSEdge-ClientID"],
+                        videos: body.value,
                     });
                 }
             });

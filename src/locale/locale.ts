@@ -8,6 +8,7 @@ export const Strings = {
    "error_generic": "error_generic",
    "error_translation": "error_translation",
    "error_news_notext": "error_news_notext",
+   "error_videos_notext": "error_videos_notext",
    "configure_page": "configure_page",
    "configure_text": "configure_text",
 };

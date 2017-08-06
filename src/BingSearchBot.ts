@@ -37,7 +37,17 @@ export class BingSearchBot extends builder.UniversalBot {
                     cb(e, null, 500);
                 }
             });
+
+            teamsConnector.onQuery("searchVideos", async (event, query, cb) => {
+                try {
+                    await this.handleVideosSearchQuery(event, query, cb);
+                } catch (e) {
+                    winston.error("News search handler failed", e);
+                    cb(e, null, 500);
+                }
+            });
         }
+
         if (teamsConnector.onQuerySettingsUrl) {
             teamsConnector.onQuerySettingsUrl(async (event, query, cb) => {
                 try {
@@ -48,6 +58,7 @@ export class BingSearchBot extends builder.UniversalBot {
                 }
             });
         }
+
         if (teamsConnector.onSettingsUpdate) {
             teamsConnector.onSettingsUpdate(async (event, query, cb) => {
                 try {
@@ -75,7 +86,7 @@ export class BingSearchBot extends builder.UniversalBot {
         });
     }
 
-    // Handle compose extension query invocation
+    // Handle searching for news
     private async handleNewsSearchQuery(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
         let session = await utils.loadSessionAsync(this, event);
 
@@ -113,6 +124,40 @@ export class BingSearchBot extends builder.UniversalBot {
             cb(null, response.toResponse());
         } else {
             cb(null, this.createMessageResponse(session, Strings.error_news_notext));
+        }
+    }
+
+    // Handle searching for videos
+    private async handleVideosSearchQuery(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
+        let session = await utils.loadSessionAsync(this, event);
+
+        let text = this.getQueryParameter(query, "text");
+        let initialRun = !!this.getQueryParameter(query, "initialRun");
+
+        // Handle settings coming in part of a query, as happens when we return a configuration response
+        let incomingSettings = query.state;
+        if (incomingSettings) {
+            this.updateSettings(session, incomingSettings);
+            text = "";
+        }
+
+        if (text) {
+            let options = {} as bing.videos.VideoSearchOptions;
+            options.count = query.queryOptions.count;
+            options.offset = query.queryOptions.skip;
+
+            let searchResult = await this.bingSearch.searchVideosAsync(text, session.userData.clientId, options);
+            if (searchResult.clientId && (searchResult.clientId !== session.userData.clientId)) {
+                session.userData.clientId = searchResult.clientId;
+            }
+
+            let response = msteams.ComposeExtensionResponse.result("list")
+                .attachments(searchResult.videos.map(video => this.createVideoResult(session, video)));
+            cb(null, response.toResponse());
+        } else if (initialRun) {
+            cb(null, this.createMessageResponse(session, Strings.error_videos_notext));
+        } else {
+            cb(null, this.createMessageResponse(session, Strings.error_videos_notext));
         }
     }
 
@@ -160,25 +205,59 @@ export class BingSearchBot extends builder.UniversalBot {
 
     private createNewsResult(session: builder.Session, article: bing.news.NewsArticle): msteams.ComposeExtensionAttachment {
         // Build the attributions line
-        let attributions = [];
+        let info = [];
         if (article.provider && article.provider.length) {
-            attributions.push(article.provider.map(provider => provider.name).join(", "));
+            info.push(article.provider.map(provider => provider.name).join(", "));
         }
         if (article.datePublished) {
-            attributions.push(moment.utc(article.datePublished).fromNow());
+            info.push(moment.utc(article.datePublished).fromNow());
         }
 
-        let card = new builder.ThumbnailCard(session)
+        let card = new builder.ThumbnailCard()
             .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
-            .text(`<p>${escapeHtml(article.description)}</p><p>${attributions.join(" | ")}</p>`);
-        let previewCard = new builder.ThumbnailCard(session)
+            .text(`<p>${escapeHtml(article.description)}</p><p>${info.join(" | ")}</p>`);
+        let previewCard = new builder.ThumbnailCard()
             .title(article.name)
             .text(article.description);
 
         // Add images if available
         if (article.image) {
-            card.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
-            previewCard.images([ new builder.CardImage(session).url(article.image.thumbnail.contentUrl) ]);
+            card.images([ new builder.CardImage().url(article.image.thumbnail.contentUrl) ]);
+            previewCard.images([ new builder.CardImage().url(article.image.thumbnail.contentUrl) ]);
+        }
+
+        return {
+            ...card.toAttachment(),
+            preview: previewCard.toAttachment(),
+        };
+    }
+
+    private createVideoResult(session: builder.Session, video: bing.videos.Video): msteams.ComposeExtensionAttachment {
+        // Build the attributions line
+        let info = [];
+        if (video.publisher && video.publisher.length) {
+            info.push(video.publisher.map(publisher => publisher.name).join(", "));
+        }
+        if (video.datePublished) {
+            let datePublished = moment.utc(video.datePublished);
+            if (datePublished.isBefore(moment().subtract(1, "days"))) {
+                info.push(datePublished.format("l"));
+            } else {
+                info.push(datePublished.fromNow());
+            }
+        }
+
+        let card = new builder.ThumbnailCard()
+            .title(`<a href="${escapeHtml(video.hostPageUrl)}">${escapeHtml(video.name)}</a>`)
+            .text(`<p>${escapeHtml(video.description)}</p><p>${info.join(" | ")}</p>`);
+        let previewCard = new builder.ThumbnailCard()
+            .title(video.name)
+            .text(video.description);
+
+        // Add images if available
+        if (video.thumbnailUrl) {
+            card.images([ new builder.CardImage().url(video.thumbnailUrl) ]);
+            previewCard.images([ new builder.CardImage().url(video.thumbnailUrl) ]);
         }
 
         return {
