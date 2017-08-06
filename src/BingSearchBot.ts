@@ -3,6 +3,7 @@ import * as builder from "botbuilder";
 import * as msteams from "botbuilder-teams";
 import * as winston from "winston";
 import * as moment from "moment";
+import { sprintf } from "sprintf-js";
 import * as escapeHtml from "escape-html";
 import * as utils from "./utils";
 import * as bing from "./BingSearchApi";
@@ -237,6 +238,14 @@ export class BingSearchBot extends builder.UniversalBot {
         let info = [];
         if (video.publisher && video.publisher.length) {
             info.push(video.publisher.map(publisher => publisher.name).join(", "));
+        }
+        if (video.duration) {
+            let duration = moment.duration(video.duration);
+            if (duration.hours() > 0) {
+                info.push(sprintf("%d:%02d:%02d", duration.hours(), duration.minutes(), duration.seconds()));
+            } else {
+                info.push(sprintf("%02d:%02d", duration.minutes(), duration.seconds()));
+            }
         }
         if (video.datePublished) {
             let datePublished = moment.utc(video.datePublished);
