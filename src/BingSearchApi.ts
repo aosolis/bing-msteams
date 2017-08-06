@@ -6,44 +6,47 @@ import * as querystring from "querystring";
 // Bing Search API
 // =========================================================
 
+export namespace news {
+    export interface Image {
+        url: string;
+        thumbnail: Thumbnail;
+    }
+
+    export interface Thumbnail {
+        contentUrl: string;
+        width: number;
+        height: number;
+    }
+
+    export interface Organization {
+        name: string;
+    }
+
+    export interface NewsArticle {
+        name: string;
+        url: string;
+        description: string;
+        image: Image;
+        datePublished: string;
+        provider: Organization[];
+    }
+
+    export interface NewsSearchResult {
+        totalEstimatedMatches?: number;
+        articles: NewsArticle[];
+        clientId: string;
+    }
+
+    export interface NewsSearchOptions {
+        count?: number;
+        offset?: number;
+        mkt?: string;
+    }
+}
+
+// Service endpoints
 const topNewsEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news";
 const newsSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news/search";
-
-export interface Image {
-    url: string;
-    thumbnail: Thumbnail;
-}
-
-export interface Thumbnail {
-    contentUrl: string;
-    width: number;
-    height: number;
-}
-
-export interface Organization {
-    name: string;
-}
-
-export interface NewsArticle {
-    name: string;
-    url: string;
-    description: string;
-    image: Image;
-    datePublished: string;
-    provider: Organization[];
-}
-
-export interface NewsSearchResult {
-    totalEstimatedMatches?: number;
-    articles: NewsArticle[];
-    clientId: string;
-}
-
-export interface NewsSearchOptions {
-    count?: number;
-    offset?: number;
-    mkt?: string;
-}
 
 export class BingSearchApi {
 
@@ -53,8 +56,8 @@ export class BingSearchApi {
     {
     }
 
-    public async searchNewsAsync(query: string, clientId: string, searchOptions?: NewsSearchOptions): Promise<NewsSearchResult> {
-        return new Promise<NewsSearchResult>((resolve, reject) => {
+    public async searchNewsAsync(query: string, clientId: string, searchOptions?: news.NewsSearchOptions): Promise<news.NewsSearchResult> {
+        return new Promise<news.NewsSearchResult>((resolve, reject) => {
             let qsp: any = { q: query };
             if (searchOptions) {
                 qsp = { ...searchOptions, ...qsp };
@@ -84,8 +87,8 @@ export class BingSearchApi {
         });
     }
 
-    public async getNewsAsync(clientId: string): Promise<NewsSearchResult> {
-        return new Promise<NewsSearchResult>((resolve, reject) => {
+    public async getNewsAsync(clientId: string): Promise<news.NewsSearchResult> {
+        return new Promise<news.NewsSearchResult>((resolve, reject) => {
             let options = {
                 url: `${topNewsEndpoint}`,
                 headers: {

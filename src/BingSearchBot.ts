@@ -5,7 +5,7 @@ import * as winston from "winston";
 import * as moment from "moment";
 import * as escapeHtml from "escape-html";
 import * as utils from "./utils";
-import { BingSearchApi, NewsSearchOptions, NewsArticle } from "./BingSearchApi";
+import * as bing from "./BingSearchApi";
 import { Strings } from "./locale/locale";
 
 // =========================================================
@@ -14,7 +14,7 @@ import { Strings } from "./locale/locale";
 
 export class BingSearchBot extends builder.UniversalBot {
 
-    private bingSearch: BingSearchApi;
+    private bingSearch: bing.BingSearchApi;
 
     constructor(
         public _connector: builder.IConnector,
@@ -24,7 +24,7 @@ export class BingSearchBot extends builder.UniversalBot {
         super(_connector, botSettings);
         this.set("persistConversationData", true);
 
-        this.bingSearch = botSettings.bingSearch as BingSearchApi;
+        this.bingSearch = botSettings.bingSearch as bing.BingSearchApi;
 
         // Handle compose extension invokes
         let teamsConnector = this._connector as msteams.TeamsChatConnector;
@@ -90,7 +90,7 @@ export class BingSearchBot extends builder.UniversalBot {
         }
 
         if (text) {
-            let options = {} as NewsSearchOptions;
+            let options = {} as bing.news.NewsSearchOptions;
             options.count = query.queryOptions.count;
             options.offset = query.queryOptions.skip;
 
@@ -158,7 +158,7 @@ export class BingSearchBot extends builder.UniversalBot {
         return response.toResponse();
     }
 
-    private createNewsResult(session: builder.Session, article: NewsArticle): msteams.ComposeExtensionAttachment {
+    private createNewsResult(session: builder.Session, article: bing.news.NewsArticle): msteams.ComposeExtensionAttachment {
         // Build the attributions line
         let attributions = [];
         if (article.provider && article.provider.length) {
