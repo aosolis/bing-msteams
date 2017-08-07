@@ -20,7 +20,7 @@
     "bluebird": "^3.4.7",
     "body-parser": "^1.16.1",
     "botbuilder": "^3.8.4",
-    "botbuilder-teams": "^0.1.3-beta5",
+    "botbuilder-teams": "^0.1.4",
     "chrono-node": "^1.2.5",
     "config": "^1.25.1",
     "crypto": "0.0.3",
