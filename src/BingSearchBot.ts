@@ -43,7 +43,7 @@ export class BingSearchBot extends builder.UniversalBot {
                 try {
                     await this.handleVideosSearchQuery(event, query, cb);
                 } catch (e) {
-                    winston.error("News search handler failed", e);
+                    winston.error("Videos search handler failed", e);
                     cb(e, null, 500);
                 }
             });

@@ -1,0 +1,61 @@
+﻿{
+  "$schema": "https://statics.teams.microsoft.com/sdk/v1.0/manifest/MicrosoftTeams.schema.json",
+  "manifestVersion": "1.0",
+  "version": "1.0",
+  "id": "33d828ea-f735-4ad6-8766-7e6dee2fcc7d",
+  "packageName": "com.microsoft.bing.teams",
+  "developer": {
+    "name": "Microsoft",
+    "websiteUrl": "https://bing.com",
+    "privacyUrl": "https://privacy.microsoft.com/PrivacyStatement",
+    "termsOfUseUrl": "https://www.microsoft.com/en-us/servicesagreement/"
+  },
+  "name": {
+    "short": "Bing News"
+  },
+  "description": {
+    "short": "Search with Bing",
+    "full": "Bing helps you turn information into action, making it faster and easier to go from searching to doing"
+  },
+  "icons": {
+    "outline": "bing_outline20.png",
+    "color": "bing_color96.png"
+  },
+  "accentColor": "#467b22",
+  "configurableTabs": [
+  ],
+  "staticTabs": [
+  ],
+  "bots": [
+  ],
+  "composeExtensions": [
+    {
+      "botId": "33d828ea-f735-4ad6-8766-7e6dee2fcc7d",
+      "scopes": [
+        "personal",
+        "team"
+      ],
+      "commands": [
+        {
+          "id": "search",
+          "title": "Search news",
+          "description": "Search news",
+          "initialRun": true,
+          "parameters": [
+            {
+              "name": "text",
+              "title": "Query",
+              "description": "Search Bing for news"
+            }
+          ]
+        }
+      ]
+    } 
+  ],
+  "permissions": [
+  ],
+  "validDomains": [
+    "bing-msteams.azurewebsites.net",
+    "*.ngrok.io"
+  ]
+}
