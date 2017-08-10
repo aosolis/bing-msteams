@@ -2,11 +2,11 @@
   "$schema": "https://statics.teams.microsoft.com/sdk/v1.0/manifest/MicrosoftTeams.schema.json",
   "manifestVersion": "1.0",
   "version": "1.0",
-  "id": "43d828ea-f735-4ad6-8766-7e6dee2fcc7d",
-  "packageName": "com.microsoft.bing.teams",
+  "id": "43d828ea-f735-4ad6-8766-7e6dee2fcc7e",
+  "packageName": "com.microsoft.bing.teams.videos",
   "developer": {
     "name": "Microsoft",
-    "websiteUrl": "https://bing.com",
+    "websiteUrl": "https://bing.com/videos",
     "privacyUrl": "https://privacy.microsoft.com/PrivacyStatement",
     "termsOfUseUrl": "https://www.microsoft.com/en-us/servicesagreement/"
   },
@@ -14,8 +14,8 @@
     "short": "Bing Videos"
   },
   "description": {
-    "short": "Search with Bing",
-    "full": "Bing helps you turn information into action, making it faster and easier to go from searching to doing"
+    "short": "Quickly search and view videos online from various websites",
+    "full": "Quickly search and view videos online from various websites"
   },
   "icons": {
     "outline": "bing_outline20.png",
@@ -38,14 +38,14 @@
       "commands": [
         {
           "id": "search",
-          "title": "Search news",
-          "description": "Search news",
+          "title": "Search videos",
+          "description": "Search Bing for videos",
           "initialRun": true,
           "parameters": [
             {
               "name": "text",
               "title": "Query",
-              "description": "Search Bing for videos"
+              "description": "Search"
             }
           ]
         }
@@ -55,7 +55,6 @@
   "permissions": [
   ],
   "validDomains": [
-    "bing-msteams.azurewebsites.net",
-    "*.ngrok.io"
+    "bing-msteams.azurewebsites.net"
   ]
 }
