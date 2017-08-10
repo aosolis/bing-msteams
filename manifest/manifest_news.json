@@ -37,7 +37,7 @@
       ],
       "commands": [
         {
-          "id": "search",
+          "id": "searchNews",
           "title": "Search news",
           "description": "Search Bing for news",
           "initialRun": true,

@@ -37,7 +37,7 @@
       ],
       "commands": [
         {
-          "id": "search",
+          "id": "searchVideos",
           "title": "Search videos",
           "description": "Search Bing for videos",
           "initialRun": true,
