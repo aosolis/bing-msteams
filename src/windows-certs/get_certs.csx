@@ -30,6 +30,13 @@ public static class MyExtensions
                Convert.ToBase64String(cert.Export(X509ContentType.Cert)).SplitLines() +
                "\n-----END CERTIFICATE-----";
     }
+
+    public static string ExportPrivateKey(this X509Certificate2 cert)
+    {
+        return "-----BEGIN CERTIFICATE-----\n" +
+               Convert.ToBase64String(cert.Export(X509ContentType.Pfx)).SplitLines() +
+               "\n-----END CERTIFICATE-----";
+    }
 }
 
 public class Startup
@@ -59,6 +66,7 @@ public class Startup
 
         var result = store.Certificates.Cast<X509Certificate2>().Select(cert => new {
             pem = cert.ExportPEMEncoded(),
+            hasPrivateKey = cert.HasPrivateKey,
             subject = cert.SubjectName.Name,
             thumbprint = cert.Thumbprint,
             issuer = cert.IssuerName.Name
@@ -66,5 +74,4 @@ public class Startup
 
         return result;
     }
-
 }

@@ -8,6 +8,7 @@ export interface GetOptions {
 
 export interface X509Certificate {
   pem: string;
+  hasPrivateKey: boolean;
   subject: string;
   thumbprint: string;
   issuer: string;

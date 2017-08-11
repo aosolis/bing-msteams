@@ -14,6 +14,7 @@ import { BingSearchBot } from "./BingSearchBot";
 import { MongoDbBotStorage } from "./storage/MongoDbBotStorage";
 import * as utils from "./utils";
 import * as certs from "./windows-certs";
+import * as jwt from "jsonwebtoken";
 
 // Configure instrumentation
 let instrumentationKey = config.get("app.instrumentationKey");
@@ -27,16 +28,39 @@ if (instrumentationKey) {
 
 // Configure Key Vault
 if (config.get("keyVault.enabled")) {
+    // Fetch the certificate
     winston.info("Fetching certificate for KeyVault");
-    certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
-        if (err) {
-            winston.error("FATAL: Failed to find certificate for KeyVault", err);
-            process.exit();
-        }
-
-        let thumbprint = config.get("keyVault.certificateThumbprint");
-        let cert = certs.find(c => c.thumbprint === thumbprint);
-        winston.info("Found certificate with thumbprint " + cert.thumbprint);
+    new Promise<certs.X509Certificate>((resolve, reject) => {
+        certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
+            if (err) {
+                winston.error("FATAL: Failed to find certificate for KeyVault", err);
+                reject(err);
+            } else {
+                let thumbprint = config.get("keyVault.certificateThumbprint");
+                let cert = certs.find(c => c.thumbprint === thumbprint);
+                winston.info("Found certificate with thumbprint " + cert.thumbprint);
+                resolve(cert);
+            }
+        });
+    }).then(cert => {
+        // Mint a token so we can connect to Key Vault
+        let options = {
+            algorithm: "RS256",
+            expiresIn: "1h",
+            notBefore: 0,
+            audience: "https://login.microsoftonline.com/<tenant_id>/oauth2/token",
+            issuer: "<client_id>",
+            subject: "<client_id>",
+            jwtid: "guid",
+            header: {
+                x5t: cert.thumbprint,
+            },
+        };
+        let token = jwt.sign({}, cert.pem, options);
+        console.log(token);
+    }).catch((e) => {
+        winston.error("FATAL: Failed to set up Azure Key Vault", e);
+        process.exit(1);
     });
 }
 
