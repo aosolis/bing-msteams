@@ -26,22 +26,19 @@ if (instrumentationKey) {
 }
 
 // Configure Key Vault
-console.log("* Fetching local machine certs");
-certs.get({ storeLocation: "LocalMachine" }, (err, certs) => {
-   if (!err) {
-       certs.forEach(cert => console.log(JSON.stringify(cert)));
-//        let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
-//        console.log(cert);
-   }
-});
-console.log("* Fetching current user certs");
-certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
-   if (!err) {
-       certs.forEach(cert => console.log(JSON.stringify(cert)));
-//        let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
-//        console.log(cert);
-   }
-});
+if (config.get("keyVault.enabled")) {
+    winston.info("Fetching certificate for KeyVault");
+    certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
+        if (err) {
+            winston.error("FATAL: Failed to find certificate for KeyVault", err);
+            process.exit();
+        }
+
+        let thumbprint = config.get("keyVault.certificateThumbprint");
+        let cert = certs.find(c => c.thumbprint === thumbprint);
+        winston.info("Found certificate with thumbprint " + cert.thumbprint);
+    });
+}
 
 let app = express();
 
