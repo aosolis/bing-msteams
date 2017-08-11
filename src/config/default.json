@@ -15,6 +15,11 @@
         "connectionString": "",
         "botStateCollection": "BotState-Test"
     },
+    "keyVault": {
+        "enabled": false,
+        "url": "https://bing-msteams.vault.azure.net/",
+        "certificateThumbprint": "C6448EF954225D147DBB091469F8151C5DFB6ECE"
+    },
     "features": {
     }
 }

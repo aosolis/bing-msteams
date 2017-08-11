@@ -28,7 +28,7 @@ var tsProject = ts.createProject('./tsconfig.json', {
 
 var filesToWatch = ['**/*.ts', '!node_modules/**'];
 var filesToLint = ['**/*.ts', '!src/typings/**', '!node_modules/**'];
-var staticFiles = ['src/**/*.json'];
+var staticFiles = ['src/**/*.json', 'src/**/*.csx'];
 
 /**
  * Clean build output.

@@ -13,6 +13,7 @@ import { BingSearchApi } from "./BingSearchApi";
 import { BingSearchBot } from "./BingSearchBot";
 import { MongoDbBotStorage } from "./storage/MongoDbBotStorage";
 import * as utils from "./utils";
+import * as certs from "./windows-certs";
 
 // Configure instrumentation
 let instrumentationKey = config.get("app.instrumentationKey");
@@ -23,6 +24,14 @@ if (instrumentationKey) {
     winston.add(utils.ApplicationInsightsTransport as any);
     appInsights.client.addTelemetryProcessor(utils.stripQueryFromTelemetryUrls);
 }
+
+// Configure Key Vault
+certs.get({ storeLocation: "LocalMachine" }, (err, certs) => {
+   if (!err) {
+       let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
+       console.log(cert);
+   }
+});
 
 let app = express();
 
