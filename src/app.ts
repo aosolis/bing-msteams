@@ -26,10 +26,20 @@ if (instrumentationKey) {
 }
 
 // Configure Key Vault
+console.log("* Fetching local machine certs");
 certs.get({ storeLocation: "LocalMachine" }, (err, certs) => {
    if (!err) {
-       let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
-       console.log(cert);
+       certs.forEach(cert => console.log(JSON.stringify(cert)));
+//        let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
+//        console.log(cert);
+   }
+});
+console.log("* Fetching current user certs");
+certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
+   if (!err) {
+       certs.forEach(cert => console.log(JSON.stringify(cert)));
+//        let cert = certs.find(c => c.thumbprint === "C6448EF954225D147DBB091469F8151C5DFB6ECE");
+//        console.log(cert);
    }
 });
 
