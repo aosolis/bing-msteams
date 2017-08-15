@@ -5,6 +5,7 @@ import * as winston from "winston";
 import * as moment from "moment";
 import { sprintf } from "sprintf-js";
 import * as escapeHtml from "escape-html";
+import * as consts from "./constants";
 import * as utils from "./utils";
 import * as bing from "./BingSearchApi";
 import { Strings } from "./locale/locale";
@@ -89,10 +90,13 @@ export class BingSearchBot extends builder.UniversalBot {
 
     // Handle searching for news
     private async handleNewsSearchQuery(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
-        let session = await utils.loadSessionAsync(this, event);
-
         let text = this.getQueryParameter(query, "text");
         let initialRun = !!this.getQueryParameter(query, "initialRun");
+        utils.trackEvent(consts.TelemetryEvent.Compose,
+            { type: "query", command: query.commandId, initialRun, skip: query.queryOptions.skip },
+            event);
+
+        let session = await utils.loadSessionAsync(this, event);
 
         // Handle settings coming in part of a query, as happens when we return a configuration response
         let incomingSettings = query.state;
@@ -130,10 +134,13 @@ export class BingSearchBot extends builder.UniversalBot {
 
     // Handle searching for videos
     private async handleVideosSearchQuery(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
-        let session = await utils.loadSessionAsync(this, event);
-
         let text = this.getQueryParameter(query, "text");
         let initialRun = !!this.getQueryParameter(query, "initialRun");
+        utils.trackEvent(consts.TelemetryEvent.Compose,
+            { type: "query", command: query.commandId, initialRun, skip: query.queryOptions.skip },
+            event);
+
+        let session = await utils.loadSessionAsync(this, event);
 
         // Handle settings coming in part of a query, as happens when we return a configuration response
         let incomingSettings = query.state;
@@ -164,12 +171,16 @@ export class BingSearchBot extends builder.UniversalBot {
 
     // Handle compose extension query settings url callback
     private async handleQuerySettingsUrl(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
+        utils.trackEvent(consts.TelemetryEvent.Compose, { type: "querySettingsUrl" }, event);
+
         let session = await utils.loadSessionAsync(this, event);
         cb(null, this.createConfigurationResponse(session));
     }
 
     // Handle compose extension settings update callback
     private async handleSettingsUpdate(event: builder.IEvent, query: msteams.ComposeExtensionQuery, cb: (err: Error, result: msteams.IComposeExtensionResponse, statusCode?: number) => void): Promise<void> {
+        utils.trackEvent(consts.TelemetryEvent.Compose, { type: "settingsUpdate" }, event);
+
         let session = await utils.loadSessionAsync(this, event);
         let incomingSettings = query.state;
         if (incomingSettings) {
