@@ -13,7 +13,6 @@ import { BingSearchApi } from "./BingSearchApi";
 import { BingSearchBot } from "./BingSearchBot";
 import { MongoDbBotStorage } from "./storage/MongoDbBotStorage";
 import * as utils from "./utils";
-import * as certs from "./windows-certs";
 
 // Configure instrumentation
 let instrumentationKey = config.get("app.instrumentationKey");
@@ -23,21 +22,6 @@ if (instrumentationKey) {
         .start();
     winston.add(utils.ApplicationInsightsTransport as any);
     appInsights.client.addTelemetryProcessor(utils.stripQueryFromTelemetryUrls);
-}
-
-// Configure Key Vault
-if (config.get("keyVault.enabled")) {
-    winston.info("Fetching certificate for KeyVault");
-    certs.get({ storeLocation: "CurrentUser" }, (err, certs) => {
-        if (err) {
-            winston.error("FATAL: Failed to find certificate for KeyVault", err);
-            process.exit();
-        }
-
-        let thumbprint = config.get("keyVault.certificateThumbprint");
-        let cert = certs.find(c => c.thumbprint === thumbprint);
-        winston.info("Found certificate with thumbprint " + cert.thumbprint);
-    });
 }
 
 let app = express();
