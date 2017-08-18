@@ -229,8 +229,8 @@ export class BingSearchBot extends builder.UniversalBot {
             .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
             .text(`<p>${escapeHtml(article.description)}</p><p>${info.join(" | ")}</p>`);
         let previewCard = new builder.ThumbnailCard()
-            .title(article.name)
-            .text(article.description);
+            .title(`<span style="font-weight:600">${article.name}</span>`)
+            .text(info);
 
         // Add images if available
         if (article.image) {
