@@ -281,7 +281,7 @@ export class BingSearchBot extends builder.UniversalBot {
             .title(`<a href="${escapeHtml(video.hostPageUrl)}">${escapeHtml(video.name)}</a>`)
             .text(`<p>${escapeHtml(video.description)}</p><p>${info.join(" | ")}</p>`);
         let previewCard = new builder.ThumbnailCard()
-            .title(video.name)
+            .title(`<span style="font-weight:600">${video.name}</span>`)
             .text(video.description);
 
         // Add images if available
