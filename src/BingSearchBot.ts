@@ -248,7 +248,7 @@ export class BingSearchBot extends builder.UniversalBot {
             } else if (datePublished.isBefore(moment().subtract(6, "hours"))) {
                 info.push(datePublished.fromNow());
             } else {
-                info.push(`<span style="color:red">${datePublished.fromNow()}</span>`);
+                info.push(`<span style="color:#c50e2e">${datePublished.fromNow()}</span>`);
             }
         }
         return info.join(" | ");
