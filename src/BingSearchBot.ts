@@ -222,15 +222,17 @@ export class BingSearchBot extends builder.UniversalBot {
             info.push(article.provider.map(provider => provider.name).join(", "));
         }
         if (article.datePublished) {
-            info.push(moment.utc(article.datePublished).fromNow());
+            let datePublished = moment.utc(article.datePublished);
+            info.push(datePublished.fromNow());
         }
+        let attribution = info.join(" | ");
 
         let card = new builder.ThumbnailCard()
             .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
-            .text(`<p>${escapeHtml(article.description)}</p><p>${info.join(" | ")}</p>`);
+            .text(`<p>${escapeHtml(article.description)}</p><p>${attribution}</p>`);
         let previewCard = new builder.ThumbnailCard()
             .title(`<span style="font-weight:600">${article.name}</span>`)
-            .text(info);
+            .text(attribution);
 
         // Add images if available
         if (article.image) {
