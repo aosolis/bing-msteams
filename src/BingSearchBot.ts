@@ -216,21 +216,12 @@ export class BingSearchBot extends builder.UniversalBot {
     }
 
     private createNewsResult(session: builder.Session, article: bing.news.NewsArticle): msteams.ComposeExtensionAttachment {
-        // Build the attributions line
-        let info = [];
-        if (article.provider && article.provider.length) {
-            info.push(article.provider.map(provider => provider.name).join(", "));
-        }
-        if (article.datePublished) {
-            info.push(moment.utc(article.datePublished).fromNow());
-        }
-
         let card = new builder.ThumbnailCard()
             .title(`<a href="${escapeHtml(article.url)}">${escapeHtml(article.name)}</a>`)
-            .text(`<p>${escapeHtml(article.description)}</p><p>${info.join(" | ")}</p>`);
+            .text(`<p>${escapeHtml(article.description)}</p><p>${this.createNewsAttribution(article)}</p>`);
         let previewCard = new builder.ThumbnailCard()
-            .title(article.name)
-            .text(article.description);
+            .title(`<span style="font-weight:600">${article.name}</span>`)
+            .text(this.createNewsAttribution(article, true /*highlightRecent*/));
 
         // Add images if available
         if (article.image) {
@@ -242,6 +233,25 @@ export class BingSearchBot extends builder.UniversalBot {
             ...card.toAttachment(),
             preview: previewCard.toAttachment(),
         };
+    }
+
+    private createNewsAttribution(article: bing.news.NewsArticle, highlightRecent?: boolean): string {
+        // Build the attributions line
+        let info = [];
+        if (article.provider && article.provider.length) {
+            info.push(article.provider.map(provider => provider.name).join(", "));
+        }
+        if (article.datePublished) {
+            let datePublished = moment.utc(article.datePublished);
+            if (datePublished.isBefore(moment().subtract(1, "day"))) {
+                info.push(datePublished.format("l"));
+            } else if (datePublished.isBefore(moment().subtract(6, "hours"))) {
+                info.push(datePublished.fromNow());
+            } else {
+                info.push(`<span style="color:red">${datePublished.fromNow()}</span>`);
+            }
+        }
+        return info.join(" | ");
     }
 
     private createVideoResult(session: builder.Session, video: bing.videos.Video): msteams.ComposeExtensionAttachment {
