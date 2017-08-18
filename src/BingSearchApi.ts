@@ -73,6 +73,28 @@ export namespace videos {
         clientId: string;
     }
 
+    export interface TileImage {
+        contentUrl: string;
+        headLine: string;
+        thumbnailUrl: string;
+    }
+
+    export interface VideoQuery {
+        displayText: string;
+        text: string;
+        webSearchUrl: string;
+    }
+
+    export interface BannerTile {
+        image: TileImage;
+        query: VideoQuery;
+    }
+
+    export interface TrendingVideosResult {
+        clientId: string;
+        bannerTiles: BannerTile[];
+    }
+
     type VideoFreshness = "day" | "week" | "month";
 
     export interface VideoSearchOptions {
@@ -89,6 +111,7 @@ export namespace videos {
 const topNewsEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news";
 const newsSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/news/search";
 const videosSearchEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/videos/search";
+const trendingVideosEndpoint = "https://api.cognitive.microsoft.com/bing/v5.0/videos/trending";
 
 export class BingSearchApi {
 
@@ -180,6 +203,31 @@ export class BingSearchApi {
                         nextOffsetAddCount: body.nextOffsetAddCount,
                         clientId: res.headers["X-MSEdge-ClientID"],
                         videos: body.value,
+                    });
+                }
+            });
+        });
+    }
+
+    public async getTrendingVideosAsync(clientId: string): Promise<videos.TrendingVideosResult> {
+        return new Promise<videos.TrendingVideosResult>((resolve, reject) => {
+            let options = {
+                url: `${trendingVideosEndpoint}`,
+                headers: {
+                    "Ocp-Apim-Subscription-Key": this.accessKey,
+                    "X-MSEdge-ClientID": clientId,
+                },
+                json: true,
+            };
+            request.get(options, (err, res: http.IncomingMessage, body) => {
+                if (err) {
+                    reject(err);
+                } else if (res.statusCode !== 200) {
+                    reject(new Error(res.statusMessage));
+                } else {
+                    resolve({
+                        clientId: res.headers["X-MSEdge-ClientID"],
+                        bannerTiles: body.bannerTiles,
                     });
                 }
             });

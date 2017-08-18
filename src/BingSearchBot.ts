@@ -163,7 +163,14 @@ export class BingSearchBot extends builder.UniversalBot {
                 .attachments(searchResult.videos.map(video => this.createVideoResult(session, video)));
             cb(null, response.toResponse());
         } else if (initialRun) {
-            cb(null, this.createMessageResponse(session, Strings.error_videos_notext));
+            let trendingVideos = await this.bingSearch.getTrendingVideosAsync(session.userData.clientId);
+            if (trendingVideos.clientId && (trendingVideos.clientId !== session.userData.clientId)) {
+                session.userData.clientId = trendingVideos.clientId;
+            }
+
+            let response = msteams.ComposeExtensionResponse.result("list")
+                .attachments(trendingVideos.bannerTiles.map(video => this.createTrendingVideoResult(session, video)));
+            cb(null, response.toResponse());
         } else {
             cb(null, this.createMessageResponse(session, Strings.error_videos_notext));
         }
@@ -289,6 +296,22 @@ export class BingSearchBot extends builder.UniversalBot {
             card.images([ new builder.CardImage().url(video.thumbnailUrl) ]);
             previewCard.images([ new builder.CardImage().url(video.thumbnailUrl) ]);
         }
+
+        return {
+            ...card.toAttachment(),
+            preview: previewCard.toAttachment(),
+        };
+    }
+
+    private createTrendingVideoResult(session: builder.Session, bannerTile: bing.videos.BannerTile): msteams.ComposeExtensionAttachment {
+        let card = new builder.ThumbnailCard()
+            .title(bannerTile.query.displayText)
+            .text(`<p>${escapeHtml(bannerTile.image.headLine)}</p><p><a href="${escapeHtml(bannerTile.query.webSearchUrl)}">See more on Bing</a></p>`)
+            .images([ new builder.CardImage().url(bannerTile.image.thumbnailUrl) ]);
+        let previewCard = new builder.ThumbnailCard()
+            .title(`<span style="font-weight:600">${escapeHtml(bannerTile.query.displayText)}</span>`)
+            .text(bannerTile.image.headLine)
+            .images([ new builder.CardImage().url(bannerTile.image.thumbnailUrl) ]);
 
         return {
             ...card.toAttachment(),
